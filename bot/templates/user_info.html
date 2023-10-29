@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <title>Управление ботом</title>
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    </head>
+<body>
+    <div class="row">
+        <div class="col-12 col-md-6" style="background-color: #20B2AA;">
+            <h2>Юзеры</h2>
+            <ul>
+                {% for user in users %}
+                    <li>{{ user.username }} - {{ user.is_blocked }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-12 col-md-6" style="background-color: #20B2AA;">
+            <h2>Фильтры</h2>
+            <!-- Здесь вы можете разместить кнопки фильтров и другие элементы управления фильтрами -->
+        </div>
+    </div>
+</body>
+</html>
