@@ -11,7 +11,7 @@ async def send_message(chat_id, message, buttons):
     whole_keyboard = []
     for button in buttons:
 
-        keyboard = [InlineKeyboardButton(button.name, callback_data='button_click')]
+        keyboard = [InlineKeyboardButton(button.name, callback_data=button.id)]
         whole_keyboard.append(keyboard)
         reply_markup = InlineKeyboardMarkup(whole_keyboard)
 
