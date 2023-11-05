@@ -7,7 +7,7 @@ from telegram.ext import Updater, MessageHandler, Filters, CallbackContext, Call
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bot.settings')
 django.setup()
 
-from mailing.models import Profile, Button, ButtonPress
+from mailing.models import Profile, Button, ButtonPress, BroadcastMessage
 
 
 TOKEN = '6844289121:AAG7-QckQBvoQBCkrJHrU1OfLp3WlGc3hLo'
@@ -33,14 +33,14 @@ def registration(update: Update, context: CallbackContext):
 
 def button_callback(update, context):
     query = update.callback_query
-    button_id = int(query.data)
-
+    button_id = int(query.data.split(':')[0])
+    broadcast_id = int(query.data.split(':')[1])
     user_id = update.effective_user.id
 
     button = Button.objects.get(id=button_id)
     user = Profile.objects.get(user_id=user_id)
-
-    button_press, created = ButtonPress.objects.get_or_create(user=user, button=button)
+    broadcast = BroadcastMessage.objects.get(id=broadcast_id)
+    button_press, created = ButtonPress.objects.get_or_create(user=user, button=button, broadcast_message=broadcast)
     button_press.count += 1
     button_press.save()
 

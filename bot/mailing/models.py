@@ -47,33 +47,6 @@ class Button(models.Model):
         return self.name
 
 
-class ButtonPress(models.Model):
-    user = models.ForeignKey(
-        Profile,
-        on_delete=models.CASCADE,
-        related_name='button_presses',
-        verbose_name='Пользователь',
-    )
-    button = models.ForeignKey(
-        Button,
-        on_delete=models.CASCADE,
-        related_name='button_presses',
-        verbose_name='Кнопка',
-    )
-    count = models.PositiveIntegerField(
-        default=0,
-        verbose_name='Количество нажатий',
-    )
-
-    class Meta:
-        verbose_name = 'Статистика по кликами'
-        verbose_name_plural = 'Статистика по кликами'
-        ordering = ['-id']
-
-    def __str__(self):
-        return self.user.name
-
-
 class BroadcastMessage(models.Model):
     name = models.CharField(
         max_length=50,
@@ -96,6 +69,11 @@ class BroadcastMessage(models.Model):
         auto_now_add=True,
         verbose_name='дата отправки',
         db_index=True,
+    )
+    button_layout = models.IntegerField(
+        verbose_name='Расположение кнопок',
+        blank=True,
+        null=True,
     )
 
     class Meta:
@@ -133,3 +111,38 @@ class TemplateMessage(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ButtonPress(models.Model):
+    user = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='button_presses',
+        verbose_name='Пользователь',
+    )
+    button = models.ForeignKey(
+        Button,
+        on_delete=models.CASCADE,
+        related_name='button_presses',
+        verbose_name='Кнопка',
+    )
+    broadcast_message = models.ForeignKey(
+        BroadcastMessage,
+        on_delete=models.CASCADE,
+        related_name='button_press_user',
+        verbose_name='Рассылка',
+        blank=True,
+        null=True,
+    )
+    count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Количество нажатий',
+    )
+
+    class Meta:
+        verbose_name = 'Статистика по кликами'
+        verbose_name_plural = 'Статистика по кликами'
+        ordering = ['-id']
+
+    def __str__(self):
+        return f'{ self.user.name } нажал на { self.button.name } { self.count } раз'

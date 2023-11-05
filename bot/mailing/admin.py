@@ -29,8 +29,8 @@ class ProfileAdmin(admin.ModelAdmin):
     get_broadcast_message_display.short_description = 'Текст рассылки'
 
     def user_info_link(self, obj):
-        url = reverse('user_info')
-        return format_html('<a href="{}">Посмотреть статистику</a>', url)
+        link = format_html('<a href="{}">Посмотреть статистику</a>', reverse('profile', args=[obj.name]))
+        return link
     user_info_link.short_description = 'Информация о пользователях'
 
     def broadcast_message_link(self, obj):
@@ -73,6 +73,7 @@ class ButtonPressAdmin(admin.ModelAdmin):
         'user',
         'button',
         'count',
+        'broadcast_message',
     )
     list_filter = ('button',)
 

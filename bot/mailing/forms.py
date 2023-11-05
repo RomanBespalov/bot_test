@@ -6,18 +6,19 @@ from mailing.models import BroadcastMessage, TemplateMessage
 class BroadcastMessageForm(forms.ModelForm):
     class Meta:
         model = BroadcastMessage
-        fields = ('name', 'text', 'buttons', 'recipients')
+        fields = ('name', 'text', 'buttons', 'recipients', 'button_layout',)
         labels = {
             'name': 'Название рассылки',
             'text': 'Текст рассылки',
             'buttons': 'Кнопки',
             'recipients': 'Получатели',
+            'button_layout': 'Расположение кнопок',
         }
         widgets = {
             'buttons': forms.CheckboxSelectMultiple,
             'recipients': forms.CheckboxSelectMultiple,
+            'button_layout': forms.RadioSelect(choices=[(1, 'друг под другом'), (2, '2 кнопки рядом')]),
         }
-        select_all_recipients = forms.BooleanField(required=False, initial=False, widget=forms.CheckboxInput(attrs={'class': 'select-all-checkbox'}))
 
 
 class TestBroadcastMessageForm(forms.ModelForm):

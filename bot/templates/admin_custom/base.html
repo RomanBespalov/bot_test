@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+{% load i18n static %}
+
+<head>
+<title>{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}</title>
+<link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
+</head>
+
+<!-- Container -->
+<div id="container">
+    <!-- Header -->
+    {% block header %}
+      <header id="header">
+        <div id="branding">
+        {% block branding %}<div id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></div>{% endblock %}
+        </div>
+        {% block usertools %}
+        <div id="user-tools">
+            {% block welcome-msg %}
+                {% translate 'Welcome,' %}
+                <strong>admin</strong>.
+            {% endblock %}
+            {% block userlinks %}
+                <a href="{% url 'telegram_bot' %}">Открыть сайт</a> /
+                <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> /
+                <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">{% translate 'Log out' %}</button>
+                </form>
+            {% endblock %}
+        </div>
+        {% endblock %}
+      </header>
+    {% endblock %}
+    <!-- END Header -->
+    {% block nav-breadcrumbs %}
+      <nav aria-label="{% translate 'Breadcrumbs' %}">
+        {% block breadcrumbs %}
+          <div class="breadcrumbs">
+            <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+            {% if title %} &rsaquo; {{ title }}{% endif %}
+          </div>
+        {% endblock %}
+      </nav>
+    {% endblock %}
+    {% block content %}
+    {% endblock %}
+</div>
+<!-- END Container -->
+
+</body>
+</html>
