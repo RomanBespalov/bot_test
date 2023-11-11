@@ -37,6 +37,11 @@ class Button(models.Model):
         blank=True,
         null=True,
     )
+    row_number = models.IntegerField(
+        verbose_name='номер строки',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = 'Кнопка'

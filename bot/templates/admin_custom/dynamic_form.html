@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html>
+<head>
+    <title>Dynamic Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'admin/css/bootstrap.min.css' %}">
+</head>
+<body>
+    
+
+    <form id="combinedForm" method="post" enctype="multipart/form-data" action="{% url 'button' %}">
+        {% csrf_token %}
+
+        <!-- Add hidden field to store selectedButtons data -->
+        <input type="hidden" name="selectedButtons" id="selectedButtons">
+
+        <!-- Render fields from the second form -->
+        {% for field in form %}
+            {% if field.name != 'buttons' %}
+                <div class="form-group row my-3 p-3">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}                
+                            <span class="required text-danger">*</span>
+                        {% endif %}        
+                    </label>
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div id="buttonContainer">
+            <div>
+                <select data-row="0" name="button_0">
+                    <option value="">Выберите кнопку</option>
+                    {% for button in buttons %}
+                        <option value="{{ button.id }}">{{ button.name }}</option>
+                    {% endfor %}
+                </select>
+                <button class="addButtonInRow" type="button">+</button>
+            </div>
+        </div>
+    
+        <button id="addButton" type="button">+</button>
+        <div>
+        <button type="submit" name="submit_button" class="btn btn-primary">
+            Создать
+        </button>
+        </div>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $(document).on("click", ".addButtonInRow", function() {
+                var row = $(this).parent().find("select").data('row');
+                var select = $('<select data-row="' + row + '" name="button_' + row + '">');
+                select.append('<option value="">Выберите кнопку</option>');
+                {% for button in buttons %}
+                    select.append('<option value="{{ button.id }}">{{ button.name }}</option>');
+                {% endfor %}
+                $(this).before(select);
+            });
+
+            $("#addButton").click(function() {
+                var newRowNum = $("#buttonContainer").find("div").length;
+                var newRow = $('<div>');
+                newRow.append('<select data-row="' + newRowNum + '" name="button_' + newRowNum + '">' +
+                    '<option value="">Выберите кнопку</option>' +
+                    '{% for button in buttons %}' +
+                    '<option value="{{ button.id }}">{{ button.name }}</option>' +
+                    '{% endfor %}' +
+                    '</select>');
+                newRow.append('<button class="addButtonInRow" type="button">+</button>');
+                $("#buttonContainer").append(newRow);
+            });
+
+            // Modify the submit function for combinedForm
+            $("#combinedForm").submit(function(event) {
+                event.preventDefault();
+
+                var selectedButtons = [];
+                $("select[name^='button_']").each(function() {
+                    var selectedValue = $(this).val();
+                    var row = $(this).data('row');
+                    if (selectedValue !== "") {
+                        selectedButtons.push({ name: $(this).attr('name'), value: selectedValue });
+                    }
+                });
+
+                // Set the value of the hidden field with the selectedButtons data
+                $("#selectedButtons").val(JSON.stringify(selectedButtons));
+
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+
+                // Submit the combinedForm
+                $.ajax({
+                    url: "{% url 'button' %}",
+                    type: "POST",
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+                    },
+                    success: function(response) {
+                        // Handle the success response
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle the error
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -4,6 +4,7 @@ from django.urls import path
 from mailing import views
 
 urlpatterns = [
+    path('admin/button/', views.button, name='button'),
     path('admin/profile/<str:name>/', views.profile, name='profile'),
     path(
         'admin/broadcast_message/',

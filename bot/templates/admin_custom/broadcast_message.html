@@ -6,6 +6,7 @@
     <head>
         <title>Создание рассылок</title>
         <link rel="stylesheet" href="{% static 'admin/css/bootstrap.min.css' %}">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
     <body>
         <div class="container py-5">
@@ -19,9 +20,9 @@
                             {% if form.errors %}
                                 {% for field in form %}
                                     {% for error in field.errors %}            
-                                        <div class="alert alert-danger">
-                                            {{ error|escape }}
-                                        </div>
+                                    <div class="alert alert-danger">
+                                        {{ error|escape }}
+                                    </div>
                                     {% endfor %}
                                 {% endfor %}
                                 {% for error in form.non_field_errors %}
@@ -33,6 +34,7 @@
                             <form method="post" enctype="multipart/form-data" action="{% url 'broadcast_message' %}">
                                 {% csrf_token %}
                                 {% for field in form %}
+                                    {% if field.name != 'buttons' %}
                                 <div class="form-group row my-3 p-3">
                                     <label for="{{ field.id_for_label }}">
                                         {{ field.label }}
@@ -42,9 +44,25 @@
                                     </label>
                                     {{ field }}
                                 </div>
+                                    {% endif %}
                                 {% endfor %}
+                                <!-- Вставка кнопок -->
+                                <div id="buttonContainer">
+                                    <div>
+                                        <select name="button_0">
+                                            <option value="1">1</option> <!-- Добавлен пустой выбор -->
+                                            <option value="2">2</option>
+                                            {% comment %} {% for button in form.buttons %}
+                                                <option value="{{ button }}"></option>
+                                            {% endfor %} {% endcomment %}
+                                        </select>
+                                        <button class="addButtonInRow" type="button">+</button>
+                                    </div>
+                                </div>
+                                <button id="addButton" type="button">+</button>
+                                <!-- Вставка кнопок -->
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" name="submit_button" class="btn btn-primary">
                                         Создать
                                     </button>
                                     <button type="submit" name="test_broadcast" value="test_broadcast" class="btn btn-primary">
@@ -60,7 +78,60 @@
                     </div>
                 </div>
             </div>
-        </div>    
+        </div>
+        <!-- Вставка кнопок -->
+        <script>
+            $(document).ready(function() {
+                $(document).on("click", ".addButtonInRow", function() {
+                    var select = $('<select name="button_' + $(this).parent().find("select").length + '">');
+                    select.append('<option value="">Выберите кнопку</option>'); <!-- Добавлен пустой выбор -->
+                    {% for button in form.buttons %}
+                        select.append('<option value="{{ button }}"></option>');
+                    {% endfor %}
+                    $(this).before(select);
+                });
+        
+                $("#addButton").click(function() {
+                    var newRow = $('<div>');
+                    newRow.append('<select name="button_0">' +
+                        '<option value="">Выберите кнопку</option>' + <!-- Добавлен пустой выбор -->
+                        '{% for button in form.buttons %}' +
+                        '<option value="{{ button }}"></option>' +
+                        '{% endfor %}' +
+                        '</select>');
+                    newRow.append('<button class="addButtonInRow" type="button">+</button>');
+                    $("#buttonContainer").append(newRow);
+                });
+            });
+            $(document).ready(function() {
+                $("#buttonForm").submit(function(event) {
+                    event.preventDefault(); // Предотвращаем отправку формы по умолчанию
+            
+                    // Собираем выбранные кнопки из всех <select> элементов
+                    var selectedButtons = [];
+                    $("select[name^='button_']").each(function() {
+                        var selectedValue = $(this).val();
+                        if (selectedValue !== "") {
+                            selectedButtons.push(selectedValue);
+                        }
+                    });
+                    console.log(selectedButtons)
+                    // Отправляем данные на сервер (здесь используется AJAX)
+                    $.ajax({
+                        url: "broadcast_message",
+                        type: "POST",
+                        data: { selectedButtons: selectedButtons },
+                        success: function(response) {
+                            // Обработка успешного ответа от сервера (если необходимо)
+                        },
+                        error: function(xhr, status, error) {
+                            // Обработка ошибки (если необходимо)
+                        }
+                    });
+                });
+            });
+        </script>
+        <!-- Вставка кнопок -->
     </body>
 </html>
 {% endblock %}

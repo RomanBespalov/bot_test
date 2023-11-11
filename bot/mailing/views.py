@@ -4,9 +4,55 @@ from mailing.models import Profile, BroadcastMessage, Button, ButtonPress
 from mailing.forms import BroadcastMessageForm, TestBroadcastMessageForm, TemplateMessageForm
 import asyncio
 from mailing.send_from_bot import send_message
-
+from django.http import JsonResponse
+import json
 
 ADMIN_CHAT_ID = 280305615
+
+
+def button(request):
+    buttons = Button.objects.all()
+    template = 'admin_custom/dynamic_form.html'
+
+    if request.method == 'POST':
+        form_data = request.POST.copy()
+
+        selected_buttons_data = json.loads(form_data.get('selectedButtons', '[]'))
+        form_data.update({'buttons': selected_buttons_data})
+        form = BroadcastMessageForm(form_data, request.FILES)
+
+        if form.is_valid():
+            broadcast_message = form.save()
+
+            # name = form.cleaned_data['name']
+            message = form.cleaned_data['text']
+            recipients = form.cleaned_data['recipients']
+            buttons_instances = form.cleaned_data['buttons']
+
+            broadcast_id = broadcast_message.id
+
+            for recipient in recipients:
+                chat_id = recipient.user_id
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                loop.run_until_complete(send_message(chat_id, message, buttons_instances, broadcast_id))
+
+            context = {
+                'buttons': buttons,
+                'form': form,
+            }
+
+            return render(request, template, context=context)
+        else:
+            print('Form is not valid:', form.errors)
+    else:
+        form = BroadcastMessageForm()
+
+    context = {
+            'buttons': buttons,
+            'form': form,
+        }
+    return render(request, template, context)
 
 
 def profile(request, name):
@@ -25,49 +71,58 @@ def profile(request, name):
 
 def broadcast_message_view(request):
     template = 'admin_custom/broadcast_message.html'
+    if request.method == 'POST':
+        if 'submit_button' in request.POST:
+            selected_buttons = request.POST.getlist('selectedButtons')
+            print(selected_buttons)
 
     if request.method == 'POST':
-        if 'template' in request.POST:
-            form = TemplateMessageForm(request.POST, request.FILES)
-            if form.is_valid():
-                form.save()
-                context = {
-                    'form': form,
-                }
-                return render(request, template, context)
-            form = TemplateMessageForm(request.POST, request.FILES)
-        if 'test_broadcast' in request.POST:
-            form = TestBroadcastMessageForm(request.POST, request.FILES)
-            if form.is_valid():
-                message = form.cleaned_data['text']
-                buttons = form.cleaned_data['buttons']
-                chat_id = ADMIN_CHAT_ID
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                loop.run_until_complete(send_message(chat_id, message, buttons))
-                context = {
-                    'form': form,
-                }
-                return render(request, template, context)
-            form = TestBroadcastMessageForm(request.POST, request.FILES)
+    #     if 'template' in request.POST:
+    #         form = TemplateMessageForm(request.POST, request.FILES)
+    #         if form.is_valid():
+    #             form.save()
+    #             context = {
+    #                 'form': form,
+    #             }
+    #             return render(request, template, context)
+    #         form = TemplateMessageForm(request.POST, request.FILES)
+    #     if 'test_broadcast' in request.POST:
+    #         form = TestBroadcastMessageForm(request.POST, request.FILES)
+    #         if form.is_valid():
+    #             message = form.cleaned_data['text']
+    #             buttons = form.cleaned_data['buttons']
+    #             chat_id = ADMIN_CHAT_ID
+    #             loop = asyncio.new_event_loop()
+    #             asyncio.set_event_loop(loop)
+    #             loop.run_until_complete(send_message(chat_id, message, buttons))
+    #             context = {
+    #                 'form': form,
+    #             }
+    #             return render(request, template, context)
+    #         form = TestBroadcastMessageForm(request.POST, request.FILES)
+
         form = BroadcastMessageForm(request.POST, request.FILES)
-        if form.is_valid():
-            broadcast_message = form.save()
-            message = form.cleaned_data['text']
-            recipients = form.cleaned_data['recipients']
-            buttons = form.cleaned_data['buttons']
-            broadcast_id = broadcast_message.id
-            button_layout = form.cleaned_data['button_layout']
-            print(button_layout)
-            for recipient in recipients:
-                chat_id = recipient.user_id
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                loop.run_until_complete(send_message(chat_id, message, buttons, broadcast_id, button_layout))
-            context = {
-                'form': form,
-            }
-            return render(request, template, context)
+        # if form.is_valid():
+        # selected_button = request.POST.get('button_0') 
+            # print(form['buttons'])
+        # print(form.cleaned_data['buttons'])
+        # print(selected_button)
+        # broadcast_message = form.save()
+        # message = form.cleaned_data['text']
+        # recipients = form.cleaned_data['recipients']
+        # buttons = form.cleaned_data['buttons']
+        # print(buttons)
+        # broadcast_id = broadcast_message.id
+        # button_layout = form.cleaned_data['button_layout']
+        # for recipient in recipients:
+        #     chat_id = recipient.user_id
+        #     loop = asyncio.new_event_loop()
+        #     asyncio.set_event_loop(loop)
+        #     loop.run_until_complete(send_message(chat_id, message, buttons, broadcast_id, button_layout))
+        context = {
+            'form': form,
+        }
+        return render(request, template, context)
     else:
         form = BroadcastMessageForm()
 
