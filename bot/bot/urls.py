@@ -4,16 +4,13 @@ from django.urls import path
 from mailing import views
 
 urlpatterns = [
-    path('admin/button/', views.button, name='button'),
-    path('admin/profile/<str:name>/', views.profile, name='profile'),
     path(
-        'admin/broadcast_message/',
-        views.broadcast_message_view,
-        name='broadcast_message',
+        'admin/broadcast/broadcast_users/',
+        views.broadcast_users,
+        name='broadcast_users'
     ),
+    path('admin/broadcast/', views.broadcast, name='broadcast'),
+    path('admin/profile/<str:name>/', views.profile, name='profile'),
     path('admin/', admin.site.urls),
-    path(
-        'https://t.me/vpn_yereven_bot',
-        views.telegram_bot_view,
-        name='telegram_bot',)
+    path('', views.telegram_bot_view, name='telegram_bot',)
 ]

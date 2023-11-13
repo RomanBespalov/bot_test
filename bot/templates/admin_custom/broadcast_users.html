@@ -3,10 +3,7 @@
 {% block content %}
 <div class="container">
     <div class="column">
-        <h1 class="user">Пользователь: {{ user.name }}</h1>
-    </div>
-    <div class="column">
-        <h2 class="model">Рассылки</h2>
+        <h2 class="model">Все рассылки</h2>
         <ul>
             {% for post in page_obj %}
                 <li>
@@ -14,14 +11,7 @@
                         <div class="text">
                             <h3>Название рассылки: {{ post.name }}</h3>
                             <p>Текст рассылки: {{ post.text }}</p>
-                        </div>
-                        <div class="buttons">
-                            Нажатые кнопки:
-                            {% for button in buttons %}
-                                {% if button.broadcast_message == post %}
-                                    <button>{{ button.button.name }} - {{ button.count }} раз</button>
-                                {% endif %}
-                            {% endfor %}
+                            {{ post.recipients }}
                         </div>
                     </div>
                 </li>

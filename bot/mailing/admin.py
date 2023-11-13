@@ -2,7 +2,10 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from mailing.models import Profile, BroadcastMessage, Button, ButtonPress, TemplateMessage
+from mailing.models import (
+    Profile, BroadcastMessage, Button,
+    ButtonPress, TemplateMessage
+)
 
 
 @admin.register(Profile)
@@ -12,31 +15,30 @@ class ProfileAdmin(admin.ModelAdmin):
         'id',
         'user_id',
         'name',
-        'user_info_link',
-        'broadcast_message_link',
-        'get_broadcast_message_display',
+        'profile_info',
+        'broadcast',
+        'broadcast_display',
     )
-    # list_filter = ('is_blocked',)
 
-    # def is_blocked(self, obj):
-    #     return 'Да' if obj.is_blocked else 'Нет'
-    # is_blocked.short_description = 'Статус блокировки'
-
-    def get_broadcast_message_display(self, obj):
+    def broadcast_display(self, obj):
         broadcasts = BroadcastMessage.objects.filter(recipients=obj.id)
         text_list = [broadcast.text for broadcast in broadcasts]
         return ', '.join(text_list)
-    get_broadcast_message_display.short_description = 'Текст рассылки'
+    broadcast_display.short_description = 'Текст рассылки'
 
-    def user_info_link(self, obj):
-        link = format_html('<a href="{}">Посмотреть статистику</a>', reverse('profile', args=[obj.name]))
+    def profile_info(self, obj):
+        link = format_html(
+            '<a href="{}">Посмотреть статистику</a>',
+            reverse('profile', args=[obj.name])
+        )
         return link
-    user_info_link.short_description = 'Информация о пользователях'
+    profile_info.short_description = 'Информация о пользователях'
 
-    def broadcast_message_link(self, obj):
-        url = reverse('broadcast_message')
-        return format_html('<a href="{}">Создать рассылку</a>', url)
-    broadcast_message_link.short_description = 'Рассылки'
+    def broadcast(self, obj):
+        url_1 = reverse('broadcast')
+        url_2 = reverse('broadcast_users')
+        return format_html('<a href="{}">Создать рассылку</a> | <a href="{}">Все рассылки</a>', url_1, url_2)
+    broadcast.short_description = 'Рассылки'
 
 
 @admin.register(Button)
@@ -50,13 +52,16 @@ class ButtonAdmin(admin.ModelAdmin):
 
 @admin.register(BroadcastMessage)
 class BroadcastMessageAdmin(admin.ModelAdmin):
+    raw_id_fields = ('recipients',)
 
     def get_buttons_display(self, obj):
         return ', '.join([buttons.name for buttons in obj.buttons.all()])
     get_buttons_display.short_description = 'Кнопки'
 
     def get_recipients_display(self, obj):
-        return ', '.join([recipients.name for recipients in obj.recipients.all()])
+        return ', '.join(
+            [recipients.name for recipients in obj.recipients.all()]
+        )
     get_recipients_display.short_description = 'Пользователи'
 
     list_display = (

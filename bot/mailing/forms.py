@@ -1,11 +1,24 @@
 from django import forms
 from django.db.models import Case, When
 
-from mailing.models import BroadcastMessage, TemplateMessage, Button
+from mailing.models import BroadcastMessage, TemplateMessage, Button, Profile
+from django.utils.safestring import mark_safe
+
+
+class RecipientsRawIdWidget(forms.CheckboxSelectMultiple):
+    def render(self, name, value, attrs=None, renderer=None):
+        html = super().render(name, value, attrs, renderer)
+        return mark_safe(f'{html}<a href="javascript:;" onclick="showRecipientsPopup()">Выбрать</a>')
 
 
 class BroadcastMessageForm(forms.ModelForm):
     buttons = forms.JSONField(required=False)
+
+    recipients = forms.ModelMultipleChoiceField(
+        queryset=Profile.objects.all(),
+        widget=RecipientsRawIdWidget,
+        required=False
+    )
 
     class Meta:
         model = BroadcastMessage
@@ -15,9 +28,6 @@ class BroadcastMessageForm(forms.ModelForm):
             'text': 'Текст рассылки',
             'buttons': 'Кнопки',
             'recipients': 'Получатели',
-        }
-        widgets = {
-            'recipients': forms.CheckboxSelectMultiple,
         }
 
     def __init__(self, *args, **kwargs):

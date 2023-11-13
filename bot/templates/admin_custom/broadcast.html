@@ -3,14 +3,12 @@
 
 <html>
 <head>
-    <title>Dynamic Form</title>
+    <title>Создание Рассылки</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="{% static 'admin/css/bootstrap.min.css' %}">
 </head>
 <body>
-    
-
-    <form id="combinedForm" method="post" enctype="multipart/form-data" action="{% url 'button' %}">
+    <form id="combinedForm" method="post" enctype="multipart/form-data" action="{% url 'broadcast' %}">
         {% csrf_token %}
 
         <!-- Add hidden field to store selectedButtons data -->
@@ -45,9 +43,16 @@
     
         <button id="addButton" type="button">+</button>
         <div>
-        <button type="submit" name="submit_button" class="btn btn-primary">
-            Создать
-        </button>
+            <button type="submit" name="submit_button" class="btn btn-primary">
+                Создать
+            </button>
+            <button type="submit" name="test_broadcast" value="test_broadcast" class="btn btn-primary">
+                Тестовая рассылка
+            </button>
+            <a href="{% url 'admin:index' %}" class="btn btn-primary" style="color: white;">Перейти в админку</a>
+            <button type="submit" name="template" value="template" class="btn btn-primary">
+                Создать шаблон рассылки
+            </button>
         </div>
     </form>
 
@@ -109,7 +114,7 @@
 
                 // Submit the combinedForm
                 $.ajax({
-                    url: "{% url 'button' %}",
+                    url: "{% url 'broadcast' %}",
                     type: "POST",
                     data: new FormData(this),
                     processData: false,
@@ -126,6 +131,11 @@
                 });
             });
         });
+    </script>
+    <script>
+        function showRecipientsPopup() {
+            window.open('broadcast_users', 'recipients_popup', 'height=500,width=800');
+        }
     </script>
 </body>
 </html>
