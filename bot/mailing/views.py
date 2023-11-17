@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mailing.models import Profile, BroadcastMessage, Button, ButtonPress
-from mailing.forms import BroadcastMessageForm
+from mailing.forms import BroadcastMessageForm, RecipientsForm
 import asyncio
 from mailing.send_from_bot import send_message
 import json
 from django.core.paginator import Paginator
+
 
 ADMIN_CHAT_ID = 280305615
 
@@ -13,14 +14,19 @@ ADMIN_CHAT_ID = 280305615
 def broadcast(request):
     buttons = Button.objects.all()
     template = 'admin_custom/broadcast.html'
+    selected_user_ids = request.session.get('selected_user_ids', [])
 
     if request.method == 'POST':
         form_data = request.POST.copy()
-
         selected_buttons_data = json.loads(
             form_data.get('selectedButtons', '[]')
         )
-        form_data.update({'buttons': selected_buttons_data})
+
+        form_data.setlist('recipients', selected_user_ids)
+        form_data.update({
+            'buttons': selected_buttons_data,
+        })
+
         form = BroadcastMessageForm(form_data, request.FILES)
 
         if form.is_valid():
@@ -29,10 +35,10 @@ def broadcast(request):
             message = form.cleaned_data['text']
             recipients = form.cleaned_data['recipients']
             buttons_instances = form.cleaned_data['buttons']
-
             broadcast_id = broadcast_message.id
 
-            for recipient in recipients:
+            for user_id in recipients:
+                recipient = get_object_or_404(Profile, id=user_id)
                 chat_id = recipient.user_id
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
@@ -41,15 +47,11 @@ def broadcast(request):
                         chat_id, message, buttons_instances, broadcast_id
                     )
                 )
-
             context = {
                 'buttons': buttons,
                 'form': form,
             }
-
             return render(request, template, context=context)
-        else:
-            print('Form is not valid:', form.errors)
     else:
         form = BroadcastMessageForm()
 
@@ -79,15 +81,59 @@ def profile(request, name):
 
 
 def broadcast_users(request):
-    posts = BroadcastMessage.objects.all()
-    paginator = Paginator(posts, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {
-        'page_obj': page_obj,
-    }
-    return render(request, 'admin_custom/broadcast_users.html', context)
+    if request.method == 'POST':
+        output = []
+        if 'username_filter' in request.POST:
+            user_name = request.POST['username_filter']
+            if user_name != '':
+                output = Profile.objects.filter(name__icontains=user_name)
+
+        if 'broadcast_filter' in request.POST:
+            message = request.POST['broadcast_filter']
+            if message != '':
+                broadcast = BroadcastMessage.objects.filter(name__icontains=message)
+                for mailing in broadcast:
+                    user = mailing.recipients.all()
+                    for us in user:
+                        output.append(us)
+            output = list(set(output))
+        if 'button_filter' in request.POST:
+            output = []
+            button_name = request.POST['button_filter']
+            if button_name != '':
+                buttons = Button.objects.filter(name__icontains=button_name)
+                for button in buttons:
+                    button_presses = ButtonPress.objects.filter(button=button.id)
+                    for buttonpress in button_presses:
+                        output.append(buttonpress.user)
+                output = list(set(output))
+
+        if 'blocked' in request.POST:
+            output = Profile.objects.filter(is_blocked=True)
+        if 'not_blocked' in request.POST:
+            output = Profile.objects.filter(is_blocked=False)
+        return render(request, 'admin_custom/broadcast_users.html', {'output': output})
+    if request.method == 'GET':
+        users = Profile.objects.all()
+        paginator = Paginator(users, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        context = {
+            'page_obj': page_obj,
+        }
+        return render(request, 'admin_custom/broadcast_users.html', context)
 
 
 def telegram_bot_view(request):
     return redirect('https://t.me/vpn_yereven_bot')
+
+
+def choose_users(request):
+    if request.method == 'POST':
+        form = RecipientsForm(request.POST)
+
+        if form.is_valid():
+            selected_users = form.cleaned_data['selected_users']
+            user_ids = [int(user.id) for user in selected_users]
+            request.session['selected_user_ids'] = user_ids
+            return render(request, 'admin_custom/close_window.html')

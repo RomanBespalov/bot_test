@@ -5,6 +5,11 @@ from mailing import views
 
 urlpatterns = [
     path(
+        'admin/choose_users/',
+        views.choose_users,
+        name='choose_users'
+    ),
+    path(
         'admin/broadcast/broadcast_users/',
         views.broadcast_users,
         name='broadcast_users'

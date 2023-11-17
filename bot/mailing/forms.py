@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 class RecipientsRawIdWidget(forms.CheckboxSelectMultiple):
     def render(self, name, value, attrs=None, renderer=None):
         html = super().render(name, value, attrs, renderer)
-        return mark_safe(f'{html}<a href="javascript:;" onclick="showRecipientsPopup()">Выбрать</a>')
+        return mark_safe(f'{html}<a href="#" onclick="showRecipientsPopup()">Выбрать</a>')
 
 
 class BroadcastMessageForm(forms.ModelForm):
@@ -17,7 +17,8 @@ class BroadcastMessageForm(forms.ModelForm):
     recipients = forms.ModelMultipleChoiceField(
         queryset=Profile.objects.all(),
         widget=RecipientsRawIdWidget,
-        required=False
+        required=False,
+        label='Пользователи',
     )
 
     class Meta:
@@ -57,6 +58,10 @@ class BroadcastMessageForm(forms.ModelForm):
 
         return buttons_instances
 
+    def clean_recipients(self):
+        recipients = self.cleaned_data['recipients']
+        return [profile.id for profile in recipients]
+
 
 class TestBroadcastMessageForm(forms.ModelForm):
     class Meta:
@@ -84,3 +89,10 @@ class TemplateMessageForm(forms.ModelForm):
         widgets = {
             'buttons': forms.CheckboxSelectMultiple,
         }
+
+
+class RecipientsForm(forms.Form):
+    selected_users = forms.ModelMultipleChoiceField(
+        queryset=Profile.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )

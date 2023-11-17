@@ -15,10 +15,16 @@ class ProfileAdmin(admin.ModelAdmin):
         'id',
         'user_id',
         'name',
+        'is_blocked',
         'profile_info',
         'broadcast',
         'broadcast_display',
     )
+    list_filter = ('is_blocked',)
+
+    def is_blocked(self, obj):
+        return 'Да' if obj.is_blocked else 'Нет'
+    is_blocked.short_description = 'Статус блокировки'
 
     def broadcast_display(self, obj):
         broadcasts = BroadcastMessage.objects.filter(recipients=obj.id)
@@ -36,8 +42,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
     def broadcast(self, obj):
         url_1 = reverse('broadcast')
-        url_2 = reverse('broadcast_users')
-        return format_html('<a href="{}">Создать рассылку</a> | <a href="{}">Все рассылки</a>', url_1, url_2)
+        return format_html('<a href="{}">Создать рассылку</a>', url_1)
     broadcast.short_description = 'Рассылки'
 
 

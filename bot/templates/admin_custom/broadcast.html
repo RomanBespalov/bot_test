@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
-
+{% comment %} {% load messages %} {% endcomment %}
 <html>
 <head>
     <title>Создание Рассылки</title>
@@ -8,15 +8,19 @@
     <link rel="stylesheet" href="{% static 'admin/css/bootstrap.min.css' %}">
 </head>
 <body>
+    {% if success_message %}
+        <div class="alert alert-success">
+            {{ success_message }}
+        </div>
+    {% endif %}
     <form id="combinedForm" method="post" enctype="multipart/form-data" action="{% url 'broadcast' %}">
         {% csrf_token %}
-
         <!-- Add hidden field to store selectedButtons data -->
         <input type="hidden" name="selectedButtons" id="selectedButtons">
 
         <!-- Render fields from the second form -->
         {% for field in form %}
-            {% if field.name != 'buttons' %}
+            {% if field.name != 'buttons'%}
                 <div class="form-group row my-3 p-3">
                     <label for="{{ field.id_for_label }}">
                         {{ field.label }}
@@ -28,7 +32,6 @@
                 </div>
             {% endif %}
         {% endfor %}
-
         <div id="buttonContainer">
             <div>
                 <select data-row="0" name="button_0">
@@ -123,7 +126,8 @@
                         xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
                     },
                     success: function(response) {
-                        // Handle the success response
+                        alert('Рассылка успешно отправлена!');
+                        location.reload();
                     },
                     error: function(xhr, status, error) {
                         // Handle the error

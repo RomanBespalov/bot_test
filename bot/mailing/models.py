@@ -14,6 +14,11 @@ class Profile(models.Model):
         blank=True,
         null=True,
     )
+    is_blocked = models.BooleanField(
+        verbose_name='Статус блокировки',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = 'Пользователь'

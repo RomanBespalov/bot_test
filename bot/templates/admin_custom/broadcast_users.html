@@ -1,23 +1,62 @@
 {% extends "admin_custom/base.html" %}
 {% load static %}
 {% block content %}
-<div class="container">
-    <div class="column">
-        <h2 class="model">Все рассылки</h2>
-        <ul>
-            {% for post in page_obj %}
-                <li>
-                    <div class="content">
-                        <div class="text">
-                            <h3>Название рассылки: {{ post.name }}</h3>
-                            <p>Текст рассылки: {{ post.text }}</p>
-                            {{ post.recipients }}
-                        </div>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-        {% include 'admin_custom/includes/paginator.html' %}
+<form method="post" action="{% url 'choose_users' %}" id="filterForm">
+    {% csrf_token %}
+    <h2 class="model">Пользователи</h2>
+    <div id="user-filter" style="float: right; margin-right: 300px;">
+        <button type="button" id="resetFilters">Сбросить все фильтры</button>
+        <h4>Фильтры работают отдельно друг от друга</h4>
+        <h2>Фильтр по пользователям</h2>
+        <style>
+            ::placeholder {
+                font-size: 11px;
+            }
+        </style>
+        <input type="text" name="username_filter" placeholder="Введите имя пользователя">
+        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+
+        <h2>Фильтр по рассылкам</h2>
+        <input type="text" name="broadcast_filter" placeholder="Введите название рассылки">
+        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+
+        <h2>Фильтр по шаблону</h2>
+        <input type="text" name="template_filter" placeholder="Введите название шаблона">
+        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+
+        <h2>Фильтр по нажатым кнопкам</h2>
+        <input type="text" name="button_filter" placeholder="Введите название шаблона">
+        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+
+
+        <h2>Фильтр по заблокированным юзерам</h2>
+        <button type="submit" name="blocked" formaction="{% url 'broadcast_users' %}">Показать заблокированных юзеров</button>
+        <div>
+        <button type="submit" name="not_blocked" formaction="{% url 'broadcast_users' %}">Показать незаблокированных юзеров</button>
+        </div>
     </div>
-</div>
+    <ul>
+        {% for user in output %}
+            <li><input type="checkbox" name="selected_users" value="{{ user.id }}">
+                {{ user.name }}
+            </li>
+        {% endfor %}
+        {% for user in page_obj %}
+            <li>
+                <input type="checkbox" name="selected_users" value="{{ user.id }}">
+                <label>{{ user.name }}</label>
+            </li>
+        {% endfor %}
+    </ul>
+    <button type="submit">Выбрать</button>
+</form>
+<script>
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        var form = document.getElementById('filterForm');
+        form.action = '{% url "broadcast_users" %}';
+        form.method = 'get';
+        form.submit();
+    });
+</script>
+{% include 'admin_custom/includes/paginator.html' %}
 {% endblock %}
