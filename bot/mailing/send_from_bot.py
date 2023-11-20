@@ -13,7 +13,10 @@ async def send_message(chat_id, message, buttons_instances, broadcast_id):
     for button in buttons_instances:
         line = button.row_number
         button_id = button.id
-        callback_data = f"{button_id}:{broadcast_id}:{line}"
+        if broadcast_id is None:
+            callback_data = f"{button_id}:{line}"
+        else:
+            callback_data = f"{button_id}:{broadcast_id}:{line}"
 
         if line not in keyboard_dict:
             keyboard_dict[line] = []

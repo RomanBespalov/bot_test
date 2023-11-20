@@ -1,0 +1,17 @@
+{% extends "admin_custom/base.html" %}
+{% load static %}
+{% block content %}
+    <div class="column">
+        <h2 class="model">Рассылки</h2>
+        <ul>
+            {% for post in page_obj %}
+                <li>
+                    <h3>{{ post.name }}</h3>
+                    <h4>{{ post.text }}</h4>
+                    <a href="{% url 'broadcast_detail' post.id %}">подробная информация </a>
+                </li>
+            {% endfor %}
+        </ul>
+        </div>
+    {% include 'admin_custom/includes/paginator.html' %}
+{% endblock %}

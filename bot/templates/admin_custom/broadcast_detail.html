@@ -1,0 +1,21 @@
+{% extends "admin_custom/base.html" %}
+{% load static %}
+{% block content %}
+<div>
+    <h2>Название рассылки: {{ broadcast.name }}</h2>
+</div>
+{% for user, data in user_buttons_dict.items %}
+    <div>
+        <p><h4>Пользователь: {{ user }}</h4>
+        <h4>Статус пользователя: {% if data.1 %} Заблокирован {% else %} Не заблокирован {% endif %}</h4></p>
+        <ul>
+            Нажатые кнопки:
+            {% for button in data.0 %}
+                <li>{{ button.button.name }} - {{ button.count }} раз</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <hr>
+{% endfor %}
+{% include 'admin_custom/includes/paginator.html' %}
+{% endblock %}

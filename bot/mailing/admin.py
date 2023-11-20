@@ -34,7 +34,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
     def profile_info(self, obj):
         link = format_html(
-            '<a href="{}">Посмотреть статистику</a>',
+            '<a href="{}">Статистика по пользователю</a>',
             reverse('profile', args=[obj.name])
         )
         return link
@@ -69,11 +69,17 @@ class BroadcastMessageAdmin(admin.ModelAdmin):
         )
     get_recipients_display.short_description = 'Пользователи'
 
+    def broadcast_statistic(sekf, obj):
+        url = reverse('broadcast_statistic')
+        return format_html('<a href="{}">Статистика по рассылкам</a>', url)
+    broadcast_statistic.short_description = 'Статистика по рассылкам'
+
     list_display = (
         'name',
         'text',
         'get_buttons_display',
         'get_recipients_display',
+        'broadcast_statistic',
     )
     list_filter = ('text',)
 

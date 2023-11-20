@@ -63,31 +63,24 @@ class BroadcastMessageForm(forms.ModelForm):
         return [profile.id for profile in recipients]
 
 
-class TestBroadcastMessageForm(forms.ModelForm):
+class TestBroadcastMessageForm(BroadcastMessageForm):
+
     class Meta:
         model = BroadcastMessage
         fields = ('name', 'text', 'buttons')
-        labels = {
-            'name': 'Название рассылки',
-            'text': 'Текст рассылки',
-            'buttons': 'Кнопки',
-        }
-        widgets = {
-            'buttons': forms.CheckboxSelectMultiple,
-        }
+
+    def __init__(self, *args, **kwargs):
+        super(TestBroadcastMessageForm, self).__init__(*args, **kwargs)
+        self.fields.pop('recipients')
 
 
 class TemplateMessageForm(forms.ModelForm):
     class Meta:
         model = TemplateMessage
-        fields = ('name', 'text', 'buttons')
+        fields = ('name', 'text')
         labels = {
             'name': 'Название рассылки',
             'text': 'Текст рассылки',
-            'buttons': 'Кнопки',
-        }
-        widgets = {
-            'buttons': forms.CheckboxSelectMultiple,
         }
 
 
