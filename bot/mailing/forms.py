@@ -25,8 +25,8 @@ class BroadcastMessageForm(forms.ModelForm):
         model = BroadcastMessage
         fields = ('name', 'text', 'buttons', 'recipients')
         labels = {
-            'name': 'Название рассылки',
-            'text': 'Текст рассылки',
+            'name': 'Название рассылки:',
+            'text': 'Текст рассылки:',
             'buttons': 'Кнопки',
             'recipients': 'Получатели',
         }

@@ -1,67 +1,66 @@
-<!DOCTYPE html>
+{% extends "admin_custom/base.html" %}
+{% block content %}
 {% load static %}
-{% comment %} {% load messages %} {% endcomment %}
+{% load widget_tweaks %}
 <html>
 <head>
     <title>Создание Рассылки</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="{% static 'admin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static "admin/css/base.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}">
 </head>
 <body>
     <form id="combinedForm" method="post" enctype="multipart/form-data" action="{% url 'broadcast' %}">
         {% csrf_token %}
-        <!-- Add hidden field to store selectedButtons data -->
         <input type="hidden" name="selectedButtons" id="selectedButtons">
-
-        <!-- Render fields from the second form -->
         {% for field in form %}
-        {% if field.name != 'buttons' and field.name != 'recipients' %}
-                <div class="form-group row my-3 p-3">
-                    <label for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                        {% if field.field.required %}                
-                            <span class="required text-danger">*</span>
-                        {% endif %}        
-                    </label>
-                        {{ field }}
+            {% if field.name != 'buttons' and field.name != 'recipients' %}
+                <div style="margin: 10px;">
+                    <div class="form-row field-name">
+                        <div class="flex-container">
+                            <label for="{{ field.id_for_label }}" style="width: 150px;text-align: left; display: inline-block;">
+                                {{ field.label }}
+                            </label>
+                            {{ field|add_class:"vLargeTextField"|attr:"style:width:350px;" }}
+                        </div>
+                    </div>
                 </div>
+            <hr>
             {% endif %}
         {% endfor %}
-        <div style="margin: 20px 0;">
-            <button>
-                <a href="#" onclick="showRecipientsPopup()" style="text-decoration: none; color: black;">
-                    Выбрать пользователей для рассылки
-                </a>
-            </button>
-        </div>        
-        <div id="buttonContainer">
-            <div>
-                <select data-row="0" name="button_0">
-                    <option value="">Выберите кнопку</option>
-                    {% for button in buttons %}
-                        <option value="{{ button.id }}">{{ button.name }}</option>
-                    {% endfor %}
-                </select>
-                <button class="addButtonInRow" type="button">+</button>
+        <div style="margin: 10px;">
+            <input type="button" value="Выбрать пользователей для рассылки" onclick="showRecipientsPopup()">
+        </div>
+        <hr>
+        <div style="margin: 10px;">
+            <div id="buttonContainer">
+                <div>
+                    <select data-row="0" name="button_0">
+                        <option value="">Выберите кнопку</option>
+                        {% for button in buttons %}
+                            <option value="{{ button.id }}">{{ button.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="addButtonInRow" type="button">+</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button id="addButton" type="button">+</button>
             </div>
         </div>
-        <div style="margin-bottom: 20px;">
-            <button id="addButton" type="button">+</button>
-        </div>
-        <div>
-            <button type="submit" name="create" value="create" class="btn btn-primary">
-                Создать
-            </button>
-            <button type="submit" name="test_broadcast" value="test_broadcast" class="btn btn-primary">
-                Тестовая рассылка
-            </button>
-            <a href="{% url 'admin:index' %}" class="btn btn-primary" style="color: white;">Перейти в админку</a>
-            <button type="submit" name="template" value="template" class="btn btn-primary">
-                Создать шаблон рассылки
-            </button>
+
+        <div class="submit-row" style="margin: 10px;">
+            <input type="submit" value="СОЗДАТЬ" name="create">
+            <input type="submit" value="Тестовая рассылка" name="test_broadcast">
+            <input type="submit" value="Создать шаблон рассылки" name="template">
+            <input type="button" value="Перейти в админку" onclick="redirectToAdmin()">
         </div>
     </form>
-
+    <script>
+        function redirectToAdmin() {
+            window.location.href = "{% url 'admin:index' %}";
+        }
+    </script>
     <script>
         $(document).ready(function() {
             $(document).on("click", ".addButtonInRow", function() {
@@ -154,8 +153,9 @@
     </script>
     <script>
         function showRecipientsPopup() {
-            window.open('broadcast_users', 'recipients_popup', 'height=500,width=800');
+            window.open('broadcast_users', 'recipients_popup', 'height=550,width=800');
         }
     </script>
 </body>
 </html>
+{% endblock %}

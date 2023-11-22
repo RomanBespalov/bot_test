@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mailing.apps.MailingConfig',
     'telegram',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

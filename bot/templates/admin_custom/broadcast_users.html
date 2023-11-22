@@ -20,9 +20,9 @@
         <input type="text" name="broadcast_filter" placeholder="Введите название рассылки">
         <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
 
-        <h2>Фильтр по шаблону</h2>
+        {% comment %} <h2>Фильтр по шаблону</h2>
         <input type="text" name="template_filter" placeholder="Введите название шаблона">
-        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button> {% endcomment %}
 
         <h2>Фильтр по нажатым кнопкам</h2>
         <input type="text" name="button_filter" placeholder="Введите название шаблона">
@@ -32,7 +32,7 @@
         <h2>Фильтр по заблокированным юзерам</h2>
         <button type="submit" name="blocked" formaction="{% url 'broadcast_users' %}">Показать заблокированных юзеров</button>
         <div>
-        <button type="submit" name="not_blocked" formaction="{% url 'broadcast_users' %}">Показать незаблокированных юзеров</button>
+        <button type="submit" name="not_blocked" formaction="{% url 'broadcast_users' %}">Показать не заблокированных юзеров</button>
         </div>
     </div>
     <ul>
@@ -53,7 +53,7 @@
 <script>
     document.getElementById('resetFilters').addEventListener('click', function() {
         var form = document.getElementById('filterForm');
-        form.action = '{% url "broadcast_users" %}';
+        form.action = '{% url "choose_users" %}';
         form.method = 'get';
         form.submit();
     });
