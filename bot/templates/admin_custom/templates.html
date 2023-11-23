@@ -1,0 +1,28 @@
+{% extends "admin_custom/base.html" %}
+{% load static %}
+{% block content %}
+<form id="template" method="post" action="{% url 'broadcast_templates' %}">
+    {% csrf_token %}
+    <div class="column">
+        <h2 class="model">Шаблоны</h2>
+        <ul>
+            {% for template in page_obj %}
+                <li>
+                    <input type="radio" name="selected_template" value="{{ template.id }}">
+                        {{ template.name }}
+                    <div>{{ template.text }}</div>
+                </li>
+            {% endfor %}
+        </ul>
+        <input type="submit" value="Выбрать" name="submit">
+    </div>
+</form>
+    {% include 'admin_custom/includes/paginator.html' %}
+    <script>
+        // После закрытия всплывающего окна, выполните обновление базовой страницы
+        window.addEventListener('unload', function() {
+            // Обновление текущей страницы
+            window.opener.location.reload();
+        });
+    </script>
+{% endblock %}

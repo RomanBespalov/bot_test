@@ -53,6 +53,7 @@
             <input type="submit" value="СОЗДАТЬ" name="create">
             <input type="submit" value="Тестовая рассылка" name="test_broadcast">
             <input type="submit" value="Создать шаблон рассылки" name="template">
+            <input type="button" value="Выбрать рассылку из шаблона" onclick="showTemplatesPopup()">
             <input type="button" value="Перейти в админку" onclick="redirectToAdmin()">
         </div>
     </form>
@@ -154,6 +155,12 @@
     <script>
         function showRecipientsPopup() {
             window.open('broadcast_users', 'recipients_popup', 'height=550,width=800');
+        }
+    </script>
+
+    <script>
+        function showTemplatesPopup() {
+            window.open('templates', 'templates_popup', 'height=550,width=800');
         }
     </script>
 </body>

@@ -12,6 +12,11 @@ urlpatterns = [
         name='choose_users'
     ),
     path(
+        'admin/broadcast/templates/',
+        views.broadcast_templates,
+        name='broadcast_templates'
+    ),
+    path(
         'admin/broadcast/broadcast_users/',
         views.broadcast_users,
         name='broadcast_users'

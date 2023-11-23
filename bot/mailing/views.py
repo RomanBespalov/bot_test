@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from django.urls import reverse
 
 from mailing.models import Profile, BroadcastMessage, Button, ButtonPress, TemplateMessage
@@ -14,6 +14,9 @@ ADMIN_CHAT_ID = 280305615
 
 def broadcast(request):
     # temps = TemplateMessage.objects.all()
+    if 'broadcast_template_data' in request.session:
+        temp = request.session['broadcast_template_data']
+
     buttons = Button.objects.all()
     template = 'admin_custom/broadcast.html'
     clicked_button = request.POST.get('clickedButton', None)
@@ -78,7 +81,21 @@ def broadcast(request):
                 return render(request, template, context=context)
 
     else:
-        form = BroadcastMessageForm()
+        if 'broadcast_template_data' in request.session:
+            initial_data = {
+                'name': temp['name'],
+                'text': temp['text'],
+            }
+
+            form = BroadcastMessageForm(initial=initial_data)
+            del request.session['broadcast_template_data']
+            context = {
+                'buttons': buttons,
+                'form': form,
+            }
+            return render(request, template, context)
+        else:
+            form = BroadcastMessageForm()
 
     context = {
         'buttons': buttons,
@@ -266,3 +283,34 @@ def broadcast_detail(request, broadcast_id):
         'flag': flag,
     }
     return render(request, 'admin_custom/broadcast_detail.html', context)
+
+
+def broadcast_templates(request):
+    if request.method == 'POST':
+        if 'submit' in request.POST:
+            template_id = request.POST.get('selected_template')
+            template = get_object_or_404(TemplateMessage, id=template_id)
+            initial_data = {
+                'name': template.name,
+                'text': template.text,
+            }
+
+            form = BroadcastMessageForm(initial=initial_data)
+
+            context = {
+                'form': form,
+            }
+            request.session['broadcast_template_data'] = {
+                'name': template.name,
+                'text': template.text,
+            }
+            return render(request, 'admin_custom/close_window.html')
+
+    templates = TemplateMessage.objects.all()
+    paginator = Paginator(templates, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+    }
+    return render(request, 'admin_custom/templates.html', context)
