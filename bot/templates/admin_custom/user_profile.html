@@ -1,33 +1,36 @@
 {% extends "admin_custom/base.html" %}
 {% load static %}
 {% block content %}
-<div class="container">
-    <div class="column">
-        <h1 class="user">Пользователь: {{ user.name }}</h1>
-    </div>
-    <div class="column">
-        <h2 class="model">Рассылки</h2>
-        <ul>
-            {% for post in page_obj %}
-                <li>
-                    <div class="content">
-                        <div class="text">
-                            <h3>Название рассылки: {{ post.name }}</h3>
-                            <p>Текст рассылки: {{ post.text }}</p>
-                        </div>
-                        <div class="buttons">
-                            Нажатые кнопки:
-                            {% for button in buttons %}
-                                {% if button.broadcast_message == post %}
-                                    <button>{{ button.button.name }} - {{ button.count }} раз</button>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-        {% include 'admin_custom/includes/paginator.html' %}
-    </div>
+<div style="margin-left: auto; margin-right: auto; width: 1200px;">
+<table>
+    <tbody>
+        <tr>
+            <td><h2>Рассылки для {{ user.name }}</h2></td>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <td style="width: 300px;">Название рассылки</td>
+            <td style="width: 600px;">Текст рассылки</td>
+            <td style="width: 200px;">Нажатые кнопки</td>
+        </tr>
+        {% for post in page_obj %}
+            <tr>
+                <td>{{ post.name }}</td>
+                <td>{{ post.text }}</td>
+                <td>
+                    {% for button in buttons %}
+                        {% if button.broadcast_message == post %}
+                            <button>{{ button.button.name }} - {{ button.count }} раз</button>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+<div style="margin-left: 90px;">
+{% include 'admin_custom/includes/paginator.html' %}
 </div>
 {% endblock %}

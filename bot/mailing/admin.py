@@ -70,9 +70,12 @@ class BroadcastMessageAdmin(admin.ModelAdmin):
     get_recipients_display.short_description = 'Пользователи'
 
     def broadcast_statistic(sekf, obj):
-        url = reverse('broadcast_statistic')
-        return format_html('<a href="{}">Статистика по рассылкам</a>', url)
-    broadcast_statistic.short_description = 'Статистика по рассылкам'
+        link = format_html(
+            '<a href="{}">Статистика по рассылке</a>',
+            reverse('broadcast_detail', args=[obj.id])
+        )
+        return link
+    broadcast_statistic.short_description = 'Статистика по рассылке'
 
     list_display = (
         'name',
@@ -92,7 +95,7 @@ class ButtonPressAdmin(admin.ModelAdmin):
         'count',
         'broadcast_message',
     )
-    list_filter = ('button',)
+    list_filter = ('button', 'user')
 
 
 @admin.register(TemplateMessage)

@@ -3,57 +3,71 @@
 {% block content %}
 <form method="post" action="{% url 'choose_users' %}" id="filterForm">
     {% csrf_token %}
-    <h2 class="model">Пользователи</h2>
     <div id="user-filter" style="float: right; margin-right: 300px;">
-        <button type="button" id="resetFilters">Сбросить все фильтры</button>
-        <h2>Фильтр по пользователям</h2>
-        <style>
-            ::placeholder {
-                font-size: 11px;
-            }
-        </style>
-        <input type="text" name="username_filter" placeholder="Введите имя пользователя">
-        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
-
-        <h2>Фильтр по рассылкам</h2>
-        <input type="text" name="broadcast_filter" placeholder="Введите название рассылки">
-        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
-
-        {% comment %} <h2>Фильтр по шаблону</h2>
-        <input type="text" name="template_filter" placeholder="Введите название шаблона">
-        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button> {% endcomment %}
-
-        <h2>Фильтр по нажатым кнопкам</h2>
-        <input type="text" name="button_filter" placeholder="Введите название шаблона">
-        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
-
-
-        <h2>Фильтр по заблокированным юзерам</h2>
-        <button type="submit" name="blocked" formaction="{% url 'broadcast_users' %}">Показать заблокированных юзеров</button>
-        <div>
-        <button type="submit" name="not_blocked" formaction="{% url 'broadcast_users' %}">Показать не заблокированных юзеров</button>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th><h3>Фильтр</h3></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input type="text" name="username_filter" placeholder="Введите имя пользователя" style="width: 190px;">
+                        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" name="broadcast_filter" placeholder="Введите название рассылки" style="width: 190px;">
+                        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" name="button_filter" placeholder="Введите название кнопки" style="width: 190px;">
+                        <button type="submit" formaction="{% url 'broadcast_users' %}">Применить фильтр</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="submit" formaction="{% url 'broadcast_users' %}" name="blocked">Blocked Users</button>
+                        <button type="submit" formaction="{% url 'broadcast_users' %}" name="not_blocked">Not blocked Users</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><button type="button" id="resetFilters">Сбросить все фильтры</button></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <ul>
-        {% for user in output %}
-            <li><input type="checkbox" name="selected_users" value="{{ user.id }}">
-                {{ user.name }}
-            </li>
-        {% endfor %}
-        {% for user in page_obj %}
-            <li>
-                <input type="checkbox" name="selected_users" value="{{ user.id }}">
-                <label>{{ user.name }}</label>
-            </li>
-        {% endfor %}
-    </ul>
+    <div style="margin-left: 60px;">
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th style="width: 200px;"><h3>Пользователи</h3></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in page_obj %}
+                <tr>
+                    <td><input type="checkbox" name="selected_users" value="{{ user.id }}" {% if user.id in selected_user_ids %}checked{% endif %}></td>
+                    <td><label>{{ user.name }}</label></td>
+            {% endfor %}
+        </tbody>
+    </table>
     <button type="submit">Выбрать</button>
 </form>
+
 <script>
     document.getElementById('resetFilters').addEventListener('click', function() {
         var form = document.getElementById('filterForm');
         form.action = '{% url "choose_users" %}';
         form.method = 'get';
+
         form.submit();
     });
 </script>

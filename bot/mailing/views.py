@@ -12,8 +12,14 @@ from django.core.paginator import Paginator
 ADMIN_CHAT_ID = 280305615
 
 
+def pagination(request, users):
+    paginator = Paginator(users, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return page_obj
+
+
 def broadcast(request):
-    # temps = TemplateMessage.objects.all()
     if 'broadcast_template_data' in request.session:
         temp = request.session['broadcast_template_data']
 
@@ -100,7 +106,6 @@ def broadcast(request):
     context = {
         'buttons': buttons,
         'form': form,
-        # 'temps': temps,
     }
     return render(request, template, context)
 
@@ -130,6 +135,7 @@ def broadcast_users(request):
             user_name = request.POST['username_filter']
             if user_name != '':
                 output = Profile.objects.filter(name__icontains=user_name)
+                page_obj = pagination(request, output)
 
         if 'broadcast_filter' in request.POST:
             message = request.POST['broadcast_filter']
@@ -140,6 +146,7 @@ def broadcast_users(request):
                     for us in user:
                         output.append(us)
             output = list(set(output))
+            page_obj = pagination(request, output)
         if 'button_filter' in request.POST:
             button_name = request.POST['button_filter']
             if button_name != '':
@@ -149,16 +156,22 @@ def broadcast_users(request):
                     for buttonpress in button_presses:
                         output.append(buttonpress.user)
                 output = list(set(output))
-        # if 'template_filter' in request.POST:
-        #     template = request.POST['template_filter']
-        #     if template != '':
-        #         template_1 = TemplateMessage.objects.filter(name__icontains=template)
+                page_obj = pagination(request, output)
 
         if 'blocked' in request.POST:
-            output = Profile.objects.filter(is_blocked=True)
+            blocked_users = Profile.objects.filter(is_blocked=True)
+            page_obj = pagination(request, blocked_users)
+
         if 'not_blocked' in request.POST:
-            output = Profile.objects.filter(is_blocked=False)
-        return render(request, 'admin_custom/broadcast_users.html', {'output': output})
+            not_blocked_users = Profile.objects.filter(is_blocked=False)
+            page_obj = pagination(request, not_blocked_users)
+
+        context = {
+            'page_obj': page_obj,
+        }
+
+        return render(request, 'admin_custom/broadcast_users.html', context)
+
     if request.method == 'GET':
         users = Profile.objects.all()
         paginator = Paginator(users, 10)
@@ -196,21 +209,11 @@ def choose_users(request):
         return redirect(reverse('broadcast_users'))
 
 
-def broadcast_statistic(request):
-    broadcast = BroadcastMessage.objects.all()
-    paginator = Paginator(broadcast, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {
-        'page_obj': page_obj,
-    }
-    return render(request, 'admin_custom/broadcast_statistic.html', context)
-
-
 def broadcast_detail(request, broadcast_id):
     flag = True
     broadcast = get_object_or_404(BroadcastMessage, id=broadcast_id)
     users = broadcast.recipients.all()
+    all_buttons = broadcast.buttons.all()
 
     paginator = Paginator(users, 5)
     page_number = request.GET.get('page')
@@ -281,6 +284,7 @@ def broadcast_detail(request, broadcast_id):
         'broadcast': broadcast,
         'user_buttons_dict': user_buttons_dict,
         'flag': flag,
+        'all_buttons': all_buttons,
     }
     return render(request, 'admin_custom/broadcast_detail.html', context)
 
@@ -307,7 +311,7 @@ def broadcast_templates(request):
             return render(request, 'admin_custom/close_window.html')
 
     templates = TemplateMessage.objects.all()
-    paginator = Paginator(templates, 5)
+    paginator = Paginator(templates, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {

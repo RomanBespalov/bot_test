@@ -3,21 +3,34 @@
 {% block content %}
 <form id="template" method="post" action="{% url 'broadcast_templates' %}">
     {% csrf_token %}
-    <div class="column">
+    <div style="margin-left: 60px;">
         <h2 class="model">Шаблоны</h2>
-        <ul>
+        <table>
+            <thead>
+                <tr>
+                    <th></th> <!-- Пустой заголовок для столбца с радиокнопками -->
+                    <th style="width: 200px;">Название</th>
+                    <th style="width: 400px;">Текст</th>
+                </tr>
+            </thead>
+            <tbody>
             {% for template in page_obj %}
-                <li>
-                    <input type="radio" name="selected_template" value="{{ template.id }}">
-                        {{ template.name }}
-                    <div>{{ template.text }}</div>
-                </li>
+                <tr>
+                    <td>
+                        <input type="radio" name="selected_template" value="{{ template.id }}">
+                    </td>
+                    <td>{{ template.name }}</td>
+                    <td> {{ template.text }}</td>
+                </tr>
             {% endfor %}
-        </ul>
+            </tbody>
+        </table>
         <input type="submit" value="Выбрать" name="submit">
     </div>
 </form>
-    {% include 'admin_custom/includes/paginator.html' %}
+    <div style="margin-left: 30px;">
+        {% include 'admin_custom/includes/paginator.html' %}
+    </div>
     <script>
         // После закрытия всплывающего окна, выполните обновление базовой страницы
         window.addEventListener('unload', function() {
