@@ -3,12 +3,11 @@
 {% block content %}
 <form method="post" action="{% url 'choose_users' %}" id="filterForm">
     {% csrf_token %}
-    <div id="user-filter" style="float: right; margin-right: 300px;">
+    <div id="user-filter" style="float: right; margin-right: 316px;">
         <table>
             <thead>
                 <tr>
-                    <th><h3>Фильтр</h3></th>
-                    <th></th>
+                    <th colspan="3"><h3>Фильтр</h3></th>
                 </tr>
             </thead>
             <tbody>
@@ -43,32 +42,53 @@
             </tbody>
         </table>
     </div>
-    <div style="margin-left: 60px;">
+    <div style="margin-left: 70px;">
     <table>
         <thead>
             <tr>
-                <th></th>
-                <th style="width: 200px;"><h3>Пользователи</h3></th>
+                <th colspan="2" style="width: 200px;"><h3>Пользователи</h3></th>
             </tr>
         </thead>
         <tbody>
             {% for user in page_obj %}
                 <tr>
-                    <td><input type="checkbox" name="selected_users" value="{{ user.id }}" {% if user.id in selected_user_ids %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="selected_users" value="{{ user.id }}" {% if user.id in request.session.selected_user_ids %}checked{% endif %}></td>
                     <td><label>{{ user.name }}</label></td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
-    <button type="submit">Выбрать</button>
+    <table>
+        <tbody>
+            <tr>
+                <td><button type="submit">Выбрать</button></td>
+                <td><button type="button" id="closeButton">Закрыть</button></td>
+            </tr>
+        </tbody>
+    </table>
 </form>
-
+<div style="margin-left: 8px;">
+    <button type="checkbox" name="selected_all" id="selectAllCheckbox">Выбрать всех</button>
+</div>
 <script>
     document.getElementById('resetFilters').addEventListener('click', function() {
         var form = document.getElementById('filterForm');
         form.action = '{% url "choose_users" %}';
         form.method = 'get';
-
         form.submit();
+    });
+
+    document.getElementById('closeButton').addEventListener('click', function() {
+        window.close();
+    });
+    window.opener.document.getElementById('selectedUserCount').innerText = "{{ request.session.selected_user_ids|length }}";
+
+    document.getElementById('selectAllCheckbox').addEventListener('click', function() {
+        var checkboxes = document.getElementsByName('selected_users');
+
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = !checkboxes[i].checked;
+        }
     });
 </script>
 {% include 'admin_custom/includes/paginator.html' %}

@@ -23,12 +23,8 @@ async def send_message(chat_id, message, buttons_instances, broadcast_id):
 
         keyboard_dict[line].append(InlineKeyboardButton(button.name, callback_data=callback_data))
 
-    # Сортируем словарь по номерам строк
     sorted_keyboard = sorted(keyboard_dict.items(), key=lambda x: int(x[0]))
-
-    # Создаем клавиатуру из отсортированных списков кнопок
     reply_markup = InlineKeyboardMarkup([[button for button in row] for _, row in sorted_keyboard])
-
     bot.send_message(chat_id, message, reply_markup=reply_markup)
     return message
 

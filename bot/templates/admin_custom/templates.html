@@ -4,11 +4,13 @@
 <form id="template" method="post" action="{% url 'broadcast_templates' %}">
     {% csrf_token %}
     <div style="margin-left: 60px;">
-        <h2 class="model">Шаблоны</h2>
         <table>
             <thead>
                 <tr>
-                    <th></th> <!-- Пустой заголовок для столбца с радиокнопками -->
+                    <th colspan="3"><h1>Шаблоны</h1></th>
+                </tr>
+                <tr>
+                    <th></th>
                     <th style="width: 200px;">Название</th>
                     <th style="width: 400px;">Текст</th>
                 </tr>
@@ -28,14 +30,12 @@
         <input type="submit" value="Выбрать" name="submit">
     </div>
 </form>
-    <div style="margin-left: 30px;">
-        {% include 'admin_custom/includes/paginator.html' %}
-    </div>
-    <script>
-        // После закрытия всплывающего окна, выполните обновление базовой страницы
-        window.addEventListener('unload', function() {
-            // Обновление текущей страницы
-            window.opener.location.reload();
-        });
-    </script>
+<div style="margin-left: 30px;">
+    {% include 'admin_custom/includes/paginator.html' %}
+</div>
+<script>
+    window.addEventListener('unload', function() {
+        window.opener.location.reload();
+    });
+</script>
 {% endblock %}

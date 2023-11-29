@@ -2,35 +2,35 @@
 {% load static %}
 {% block content %}
 <div style="margin-left: auto; margin-right: auto; width: 1200px;">
-<table>
+  <table>
+    <thead>
+      <tr>
+        <th colspan="3"><h1>Рассылки для {{ user.name }}</h1></th>
+      </tr>
+      <tr>
+        <th style="width: 300px;"><h4>Название рассылки</h4></th>
+        <th style="width: 600px;"><h4>Текст рассылки</h4></th>
+        <th style="width: 200px;"><h4>Нажатые кнопки</h4></th>
+      </tr>
+    </thead>
     <tbody>
+      {% for post in page_obj %}
         <tr>
-            <td><h2>Рассылки для {{ user.name }}</h2></td>
-            <th></th>
-            <th></th>
+          <td>{{ post.name }}</td>
+          <td>{{ post.text }}</td>
+          <td>
+            {% for button in buttons %}
+              {% if button.broadcast_message == post %}
+                <button>{{ button.button.name }} - {{ button.count }} раз</button>
+              {% endif %}
+            {% endfor %}
+          </td>
         </tr>
-        <tr>
-            <td style="width: 300px;">Название рассылки</td>
-            <td style="width: 600px;">Текст рассылки</td>
-            <td style="width: 200px;">Нажатые кнопки</td>
-        </tr>
-        {% for post in page_obj %}
-            <tr>
-                <td>{{ post.name }}</td>
-                <td>{{ post.text }}</td>
-                <td>
-                    {% for button in buttons %}
-                        {% if button.broadcast_message == post %}
-                            <button>{{ button.button.name }} - {{ button.count }} раз</button>
-                        {% endif %}
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endfor %}
+      {% endfor %}
     </tbody>
-</table>
+  </table>
 </div>
 <div style="margin-left: 90px;">
-{% include 'admin_custom/includes/paginator.html' %}
+  {% include 'admin_custom/includes/paginator.html' %}
 </div>
 {% endblock %}

@@ -19,7 +19,7 @@
             <span class="page-item">{{ i }}</span>
           </span>
         {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
-        <span class="page-item">
+          <span class="page-item">
             <a class="page-item" href="?page={{ i }}">{{ i }}</a>
           </span>
         {% endif %}

@@ -2,7 +2,6 @@
 {% block content %}
 {% load static %}
 {% load widget_tweaks %}
-<html>
 <head>
     <title>Создание Рассылки</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -10,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}">
 </head>
 <body>
-    <form id="combinedForm" method="post" enctype="multipart/form-data" action="{% url 'broadcast' %}">
+    <form id="combinedForm" method="post" action="{% url 'broadcast' %}">
         {% csrf_token %}
         <input type="hidden" name="selectedButtons" id="selectedButtons">
         {% for field in form %}
@@ -30,6 +29,7 @@
         {% endfor %}
         <div style="margin: 10px;">
             <input type="button" value="Выбрать пользователей для рассылки" onclick="showRecipientsPopup()">
+            Выбрано <span id="selectedUserCount">{{ request.session.selected_user_ids|length }}</span> пользователей
         </div>
         <hr>
         <div style="margin: 10px;">
@@ -48,7 +48,6 @@
                 <button id="addButton" type="button">+</button>
             </div>
         </div>
-
         <div class="submit-row" style="margin: 10px;">
             <input type="submit" value="СОЗДАТЬ" name="create">
             <input type="submit" value="Тестовая рассылка" name="test_broadcast">
@@ -57,11 +56,6 @@
             <input type="button" value="Перейти в админку" onclick="redirectToAdmin()">
         </div>
     </form>
-    <script>
-        function redirectToAdmin() {
-            window.location.href = "{% url 'admin:index' %}";
-        }
-    </script>
     <script>
         $(document).ready(function() {
             $(document).on("click", ".addButtonInRow", function() {
@@ -87,7 +81,6 @@
                 $("#buttonContainer").append(newRow);
             });
 
-            // Modify the submit function for combinedForm
             $("#combinedForm").submit(function(event) {
                 event.preventDefault();
 
@@ -100,12 +93,9 @@
                     }
                 });
 
-                // Set the value of the hidden field with the selectedButtons data
                 $("#selectedButtons").val(JSON.stringify(selectedButtons));
 
-                // Get the name of the clicked button
                 var clickedButtonName = $(document.activeElement).attr("name")
-                // Add the clicked button name to the form data
                 var formData = new FormData(this);
                 formData.append("clickedButton", clickedButtonName);
 
@@ -124,7 +114,6 @@
                     return cookieValue;
                 }
 
-                // Submit the combinedForm
                 $.ajax({
                     url: "{% url 'broadcast' %}",
                     type: "POST",
@@ -146,23 +135,20 @@
                         }
                     },
                     error: function(xhr, status, error) {
-                        // Handle the error
                     }
                 });
             });
         });
-    </script>
-    <script>
         function showRecipientsPopup() {
-            window.open('broadcast_users', 'recipients_popup', 'height=580,width=800');
+            var recipientsPopup = window.open('broadcast_users', 'recipients_popup', 'height=580,width=800');
+            recipientsPopup.opener = window;
         }
-    </script>
-
-    <script>
         function showTemplatesPopup() {
             window.open('templates', 'templates_popup', 'height=580,width=800');
         }
+        function redirectToAdmin() {
+            window.location.href = "{% url 'admin:index' %}";
+        }
     </script>
 </body>
-</html>
 {% endblock %}

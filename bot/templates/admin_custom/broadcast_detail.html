@@ -2,89 +2,96 @@
 {% load static %}
 {% block content %}
 <div>
-<form name="base_form" method="post" action="{% url 'broadcast_detail' broadcast.id %}">
-    {% csrf_token %}
-    <div id="user-filter" style="float: right; margin-right: 25%;">
-        <table>
-            <thead>
-                <tr>
-                    <th><h3>Фильтр</h3></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><input type="text" name="button_filter" placeholder="Введите название кнопки" value="{{ request.POST.button_filter }}"style="width: 190px;"></td>
-                    <td><button type="submit">Применить фильтр</button></td>
-                </tr>
-                <tr>
-                    <td><button type="submit" name="blocked">Blocked Users</button><button type="submit" name="not_blocked">Not blocked Users</button></td>
-                </tr>
-                <tr>
-                    <td>
-                        <button type="submit" name="reset">Сбросить фильтры</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div style="margin-left: 20%;">
-
-{% if blocked %}
-    Включен фильтр по заблокированным юзерам
-{% endif %}
-{% if not_blocked %}
-    <h4>Включен фильтр по не заблокированным юзерам</h4>
-{% endif %}
-{% if filtered_users %}
-    <span>
-        Включен фильтр - Нажатые кнопки:
-        {% for butt in butts %}
-            {{ butt }}
-            {% if not forloop.last %}, {% endif %}
-        {% endfor %}
-    </span>
-{% endif %}
-{% if not flag %}
-    Юзеров по данному фильтру нет!
-{% endif %}
-        <table>
-            <thead>
-                <tr>
-                    <th colspan="3"><h3>Название рассылки: {{ broadcast.name }}</h3></th>
-                </tr>
-                <tr>
-                    <th colspan="3"><h3>Текст рассылки: {{ broadcast.text }}</h3></th>
-                </tr>
-                <tr>
-                    <th colspan="3">Все кнопки:
-                        {% for button in all_buttons %}
-                            {{ button.name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </th>
-                </tr>
-                <tr>
-                    <th>Пользователь</th>
-                    <th>Статус пользователя</th>
-                    <th>Нажатые кнопки</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user, data in user_buttons_dict.items %}
+    <form id="filterForm" name="base_form" method="post" action="{% url 'broadcast_detail' broadcast.id %}">
+        {% csrf_token %}
+        <div id="user-filter" style="float: right; margin-right: 5%;">
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ user.name }}</td>
-                        <td>{% if data.1 %} Заблокирован {% else %} Не заблокирован {% endif %}</td>
+                        <th><h1>Фильтр</h1></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="button_filter" placeholder="Введите название кнопки" value="{{ modified_post.button_filter }}"style="width: 190px;"></td>
+                        <td><button type="submit">Применить фильтр</button></td>
+                    </tr>
+                    <tr>
                         <td>
-                        {% for button in data.0 %}
-                            <li>{{ button.button.name }} - {{ button.count }} раз</li>
-                        {% endfor %}
+                            <button type="submit" name="blocked">Blocked Users</button>
+                            <button type="submit" name="not_blocked">Not blocked Users</button>
                         </td>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</form>
+                    <tr>
+                        <td>
+                            <button type="button" id="resetFilters">Сбросить фильтры</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-left: 5%;">
+            <table>
+                <thead>
+                    <tr>
+                        {% if flag %}
+                            <th colspan="3"><h2>Включен фильтр по кнопкам</h2></th>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        {% if not_blocked %}
+                            <th colspan="3"><h2>Включен фильтр по незаблокированным пользователям</h2></th>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        {% if blocked %}
+                            <th colspan="3"><h2>Включен фильтр по заблокированным пользователям</h2></th>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <th colspan="3"><h1>Название рассылки: {{ broadcast.name }}</h1></th>
+                    </tr>
+                    <tr>
+                        <th colspan="3"><h1>Текст рассылки: {{ broadcast.text }}</h1></th>
+                    </tr>
+                    <tr>
+                        <th colspan="3"><h1>Все кнопки:
+                            {% for button in all_buttons %}
+                                {{ button.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </h1></th>
+                    </tr>
+                    <tr>
+                        <th style="width: 300px;"><h4>Пользователь</h4></th>
+                        <th style="width: 300px;"><h4>Статус пользователя</h4></th>
+                        <th style="width: 300px;"><h4>Нажатые кнопки</h4></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user, data in user_buttons_dict.items %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{% if data.1 %} Заблокирован {% else %} Не заблокирован {% endif %}</td>
+                            <td>
+                            {% for button in data.0 %}
+                                <li>{{ button.button.name }} - {{ button.count }} раз</li>
+                            {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
 </div>
+<script>
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        var form = document.getElementById('filterForm');
+        form.action = '{% url "broadcast_detail" broadcast.id %}';
+        form.method = 'POST';
+        form.submit();
+    });
+</script>
 {% include 'admin_custom/includes/paginator.html' %}
 {% endblock %}

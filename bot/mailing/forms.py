@@ -38,21 +38,19 @@ class BroadcastMessageForm(forms.ModelForm):
 
     def clean_buttons(self):
         buttons_data = self.cleaned_data.get('buttons', [])
+        if buttons_data is None:
+            buttons_instances = []
+            return buttons_instances
 
-        # Извлекаем последнюю цифру из имени и значение из каждой кнопки
         button_info = [(int(button['name'][-1]), button['value']) for button in buttons_data if 'value' in button]
 
-        # Создаем словарь, где ключ - id кнопки, значение - строка
         buttons_dict = {str(button_value): str(row_number) for row_number, button_value in button_info}
 
-        # Получаем экземпляры модели Button по их id
         buttons_instances = Button.objects.filter(id__in=buttons_dict.keys()).order_by(
             Case(*[When(id=id_val, then=pos) for pos, id_val in enumerate(buttons_dict.keys())], default=None)
         )
 
-        # Обновляем данные в базе данных, устанавливая row_number
         for button_instance in buttons_instances:
-            # Используем button_instance.id в качестве ключа
             button_instance.row_number = buttons_dict.get(str(button_instance.id), None)
             button_instance.save()
 
@@ -61,17 +59,6 @@ class BroadcastMessageForm(forms.ModelForm):
     def clean_recipients(self):
         recipients = self.cleaned_data['recipients']
         return [profile.id for profile in recipients]
-
-
-class TestBroadcastMessageForm(BroadcastMessageForm):
-
-    class Meta:
-        model = BroadcastMessage
-        fields = ('name', 'text', 'buttons')
-
-    def __init__(self, *args, **kwargs):
-        super(TestBroadcastMessageForm, self).__init__(*args, **kwargs)
-        self.fields.pop('recipients')
 
 
 class TemplateMessageForm(forms.ModelForm):

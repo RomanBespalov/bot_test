@@ -99,9 +99,11 @@ class TemplateMessage(models.Model):
     name = models.CharField(
         max_length=50,
         verbose_name='название шаблона',
+        unique=True,
     )
     text = models.TextField(
         verbose_name='текст шаблона',
+        unique=True,
     )
     buttons = models.ManyToManyField(
         Button,

@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
 from mailing.models import Profile, BroadcastMessage, Button, ButtonPress, TemplateMessage
-from mailing.forms import BroadcastMessageForm, RecipientsForm, TestBroadcastMessageForm, TemplateMessageForm
+from mailing.forms import BroadcastMessageForm, RecipientsForm, TemplateMessageForm
 import asyncio
 from mailing.send_from_bot import send_message
 import json
@@ -36,26 +36,12 @@ def broadcast(request):
                 'buttons': selected_buttons_data,
             })
 
-        if clicked_button == 'test_broadcast':
-            form = TestBroadcastMessageForm(form_data)
-            if form.is_valid():
-                message = form.cleaned_data['text']
-                buttons_instances = form.cleaned_data['buttons']
-                broadcast_id = None
-                chat_id = ADMIN_CHAT_ID
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                loop.run_until_complete(
-                    send_message(
-                        chat_id, message, buttons_instances, broadcast_id
-                    )
-                )
-        elif clicked_button == 'template':
+        if clicked_button == 'template':
             form = TemplateMessageForm(request.POST)
             if form.is_valid():
                 form.save()
 
-        elif clicked_button == 'create':
+        elif clicked_button == 'create' or clicked_button == 'test_broadcast':
             selected_user_ids = request.session.get('selected_user_ids', [])
             form_data.setlist('recipients', selected_user_ids)
             form = BroadcastMessageForm(form_data, request.FILES)
@@ -83,7 +69,8 @@ def broadcast(request):
                     'buttons': buttons,
                     'form': form,
                 }
-                del request.session['selected_user_ids']
+                if clicked_button == 'create':
+                    del request.session['selected_user_ids']
                 return render(request, template, context=context)
 
     else:
@@ -102,7 +89,8 @@ def broadcast(request):
             return render(request, template, context)
         else:
             form = BroadcastMessageForm()
-
+    if 'selected_user_ids' in request.session:
+        del request.session['selected_user_ids']
     context = {
         'buttons': buttons,
         'form': form,
@@ -204,18 +192,17 @@ def choose_users(request):
         else:
             return render(request, 'admin_custom/close_window.html')
     elif request.method == 'GET':
-        # Очистка данных в сессии при сбросе фильтров
         request.session.pop('selected_user_ids', None)
         return redirect(reverse('broadcast_users'))
 
 
 def broadcast_detail(request, broadcast_id):
-    flag = True
+    flag = False
     broadcast = get_object_or_404(BroadcastMessage, id=broadcast_id)
     users = broadcast.recipients.all()
     all_buttons = broadcast.buttons.all()
 
-    paginator = Paginator(users, 5)
+    paginator = Paginator(users, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     users_on_page = page_obj.object_list
@@ -227,12 +214,13 @@ def broadcast_detail(request, broadcast_id):
             if BroadcastMessage.objects.filter(recipients=user, id=broadcast_id):
                 buttons = ButtonPress.objects.filter(user=user, broadcast_message=broadcast)
                 user_buttons_dict[user] = buttons, user.is_blocked
+
         blocked = True
         context = {
             'blocked': blocked,
             'broadcast': broadcast,
             'user_buttons_dict': user_buttons_dict,
-            'flag': user_buttons_dict,
+            'all_buttons': all_buttons,
         }
         return render(request, 'admin_custom/broadcast_detail.html', context)
 
@@ -242,12 +230,13 @@ def broadcast_detail(request, broadcast_id):
             if BroadcastMessage.objects.filter(recipients=user, id=broadcast_id):
                 buttons = ButtonPress.objects.filter(user=user, broadcast_message=broadcast)
                 user_buttons_dict[user] = buttons, user.is_blocked
+
         not_blocked = True
         context = {
             'not_blocked': not_blocked,
             'broadcast': broadcast,
             'user_buttons_dict': user_buttons_dict,
-            'flag': user_buttons_dict,
+            'all_buttons': all_buttons,
         }
         return render(request, 'admin_custom/broadcast_detail.html', context)
 
@@ -267,12 +256,14 @@ def broadcast_detail(request, broadcast_id):
         for user in filtered_users:
             buttons = ButtonPress.objects.filter(user=user, broadcast_message=broadcast)
             user_buttons_dict[user] = buttons, user.is_blocked
+
         context = {
             'butts': butts,
             'broadcast': broadcast,
             'filtered_users': filtered_users,
             'user_buttons_dict': user_buttons_dict,
-            'flag': filtered_users,
+            'flag': True,
+            'all_buttons': all_buttons,
         }
         return render(request, 'admin_custom/broadcast_detail.html', context)
 

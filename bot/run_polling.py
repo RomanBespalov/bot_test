@@ -2,7 +2,7 @@ import os
 
 import django
 from telegram import Update
-from telegram.ext import Updater, MessageHandler, Filters, CallbackContext, CallbackQueryHandler, CommandHandler
+from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, CommandHandler
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bot.settings')
 django.setup()
@@ -15,7 +15,7 @@ TOKEN = '6844289121:AAG7-QckQBvoQBCkrJHrU1OfLp3WlGc3hLo'
 
 def registration(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
-    user, _ = Profile.objects.get_or_create(
+    Profile.objects.get_or_create(
         user_id=chat_id,
         defaults={
             'name': update.message.from_user.username,
@@ -40,7 +40,7 @@ def button_callback(update, context):
     button = Button.objects.get(id=button_id)
     user = Profile.objects.get(user_id=user_id)
     broadcast = BroadcastMessage.objects.get(id=broadcast_id)
-    button_press, created = ButtonPress.objects.get_or_create(user=user, button=button, broadcast_message=broadcast)
+    button_press, _ = ButtonPress.objects.get_or_create(user=user, button=button, broadcast_message=broadcast)
     button_press.count += 1
     button_press.save()
 
