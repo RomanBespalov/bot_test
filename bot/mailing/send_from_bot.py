@@ -1,9 +1,9 @@
 import asyncio
-from telegram import Bot
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
+
 
 API_TOKEN = '6844289121:AAG7-QckQBvoQBCkrJHrU1OfLp3WlGc3hLo'
-
 bot = Bot(token=API_TOKEN)
 
 
@@ -21,10 +21,14 @@ async def send_message(chat_id, message, buttons_instances, broadcast_id):
         if line not in keyboard_dict:
             keyboard_dict[line] = []
 
-        keyboard_dict[line].append(InlineKeyboardButton(button.name, callback_data=callback_data))
+        keyboard_dict[line].append(
+            InlineKeyboardButton(button.name, callback_data=callback_data)
+        )
 
     sorted_keyboard = sorted(keyboard_dict.items(), key=lambda x: int(x[0]))
-    reply_markup = InlineKeyboardMarkup([[button for button in row] for _, row in sorted_keyboard])
+    reply_markup = InlineKeyboardMarkup(
+        [[button for button in row] for _, row in sorted_keyboard]
+    )
     bot.send_message(chat_id, message, reply_markup=reply_markup)
     return message
 

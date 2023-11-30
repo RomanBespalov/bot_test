@@ -2,7 +2,8 @@ import os
 
 import django
 from telegram import Update
-from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, CommandHandler
+from telegram.ext import (CallbackContext, CallbackQueryHandler,
+                          CommandHandler, Updater)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bot.settings')
 django.setup()

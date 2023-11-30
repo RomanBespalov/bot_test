@@ -1,14 +1,16 @@
 from django import forms
 from django.db.models import Case, When
-
-from mailing.models import BroadcastMessage, TemplateMessage, Button, Profile
 from django.utils.safestring import mark_safe
+
+from mailing.models import BroadcastMessage, Button, Profile, TemplateMessage
 
 
 class RecipientsRawIdWidget(forms.CheckboxSelectMultiple):
     def render(self, name, value, attrs=None, renderer=None):
         html = super().render(name, value, attrs, renderer)
-        return mark_safe(f'{html}<a href="#" onclick="showRecipientsPopup()">Выбрать</a>')
+        return mark_safe(
+            f'{html}<a href="#" onclick="showRecipientsPopup()">Выбрать</a>'
+        )
 
 
 class BroadcastMessageForm(forms.ModelForm):
@@ -42,16 +44,28 @@ class BroadcastMessageForm(forms.ModelForm):
             buttons_instances = []
             return buttons_instances
 
-        button_info = [(int(button['name'][-1]), button['value']) for button in buttons_data if 'value' in button]
+        button_info = [
+            (int(button['name'][-1]), button['value'])
+            for button in buttons_data if 'value' in button
+        ]
 
-        buttons_dict = {str(button_value): str(row_number) for row_number, button_value in button_info}
+        buttons_dict = {
+            str(button_value): str(row_number)
+            for row_number, button_value in button_info
+        }
 
-        buttons_instances = Button.objects.filter(id__in=buttons_dict.keys()).order_by(
-            Case(*[When(id=id_val, then=pos) for pos, id_val in enumerate(buttons_dict.keys())], default=None)
-        )
+        buttons_instances = Button.objects.filter(
+            id__in=buttons_dict.keys()
+        ).order_by(Case(*[
+            When(id=id_val, then=pos) for pos, id_val in enumerate(
+                buttons_dict.keys()
+            )
+        ], default=None))
 
         for button_instance in buttons_instances:
-            button_instance.row_number = buttons_dict.get(str(button_instance.id), None)
+            button_instance.row_number = buttons_dict.get(
+                str(button_instance.id), None
+            )
             button_instance.save()
 
         return buttons_instances
@@ -62,6 +76,7 @@ class BroadcastMessageForm(forms.ModelForm):
 
 
 class TemplateMessageForm(forms.ModelForm):
+
     class Meta:
         model = TemplateMessage
         fields = ('name', 'text')

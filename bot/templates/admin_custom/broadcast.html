@@ -127,7 +127,11 @@
                         if (clickedButtonName === 'test_broadcast') {
                             alert('Тестовая рассылка успешно отправлена!');
                         } else if (clickedButtonName === 'template') {
-                            alert('Шаблон успешно создан!');
+                            if (response.valid) {
+                                alert('Шаблон успешно создан!');
+                            } else {
+                                alert('Такой шаблон уже существует. Комбинация названия и текста должна быть уникальная.');
+                            }
                         }
                         else {
                             alert('Рассылка успешно отправлена!');
@@ -139,6 +143,8 @@
                 });
             });
         });
+    </script>
+    <script>
         function showRecipientsPopup() {
             var recipientsPopup = window.open('broadcast_users', 'recipients_popup', 'height=580,width=800');
             recipientsPopup.opener = window;

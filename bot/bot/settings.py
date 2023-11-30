@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'mailing.apps.MailingConfig',
     'telegram',
     'widget_tweaks',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

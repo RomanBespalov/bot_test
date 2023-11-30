@@ -99,11 +99,9 @@ class TemplateMessage(models.Model):
     name = models.CharField(
         max_length=50,
         verbose_name='название шаблона',
-        unique=True,
     )
     text = models.TextField(
         verbose_name='текст шаблона',
-        unique=True,
     )
     buttons = models.ManyToManyField(
         Button,
@@ -120,6 +118,7 @@ class TemplateMessage(models.Model):
         verbose_name = 'Шаблон рассылки'
         verbose_name_plural = 'Шаблоны рассылок'
         ordering = ['-id']
+        unique_together = ('name', 'text',)
 
     def __str__(self):
         return self.name
@@ -157,4 +156,5 @@ class ButtonPress(models.Model):
         ordering = ['-id']
 
     def __str__(self):
-        return f'{ self.user.name } нажал на { self.button.name } { self.count } раз'
+        return (f'{ self.user.name } нажал на '
+                f'{ self.button.name } { self.count } раз')

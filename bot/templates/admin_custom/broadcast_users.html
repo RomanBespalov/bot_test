@@ -39,6 +39,9 @@
                     <td><button type="button" id="resetFilters">Сбросить все фильтры</button></td>
                     <td></td>
                 </tr>
+                <tr>
+                    <td>Выбрано <span id="selectedUserCount">{{ request.session.selected_user_ids|length }}</span> пользователей</td>
+                </tr>
             </tbody>
         </table>
     </div>

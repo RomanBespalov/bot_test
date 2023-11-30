@@ -2,10 +2,8 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from mailing.models import (
-    Profile, BroadcastMessage, Button,
-    ButtonPress, TemplateMessage
-)
+from mailing.models import (BroadcastMessage, Button, ButtonPress, Profile,
+                            TemplateMessage)
 
 
 @admin.register(Profile)
