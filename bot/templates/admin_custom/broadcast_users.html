@@ -36,11 +36,14 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><button type="button" id="resetFilters">Сбросить все фильтры</button></td>
+                    <td><button type="submit" name="reset" formaction="{% url 'broadcast_users' %}" id="resetFilters">Сбросить все фильтры</button></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>Выбрано <span id="selectedUserCount">{{ request.session.selected_user_ids|length }}</span> пользователей</td>
+                </tr>
+                <tr>
+                    <td><button type="submit" name="select_all" formaction="{% url 'broadcast_users' %}">Выбрать всех по текущему фильтру</button></td>
                 </tr>
             </tbody>
         </table>
@@ -71,13 +74,13 @@
     </table>
 </form>
 <div style="margin-left: 8px;">
-    <button type="checkbox" name="selected_all" id="selectAllCheckbox">Выбрать всех</button>
+    <button type="checkbox" name="selected_all" id="selectAllCheckbox">Выбрать всех на этой странице</button>
 </div>
 <script>
     document.getElementById('resetFilters').addEventListener('click', function() {
         var form = document.getElementById('filterForm');
-        form.action = '{% url "choose_users" %}';
-        form.method = 'get';
+        form.action = '{% url "broadcast_users" %}';
+        form.method = 'POST';
         form.submit();
     });
 

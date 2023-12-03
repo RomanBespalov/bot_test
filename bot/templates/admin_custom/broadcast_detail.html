@@ -25,7 +25,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <button type="button" id="resetFilters">Сбросить фильтры</button>
+                            <button type="submit" name="reset" id="resetFilters">Сбросить фильтр</button>
                         </td>
                     </tr>
                 </tbody>
@@ -93,5 +93,7 @@
         form.submit();
     });
 </script>
-{% include 'admin_custom/includes/paginator.html' %}
+<div style="margin-left: 45px;">
+    {% include 'admin_custom/includes/paginator.html' %}
+</div>
 {% endblock %}
