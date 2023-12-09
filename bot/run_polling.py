@@ -41,11 +41,13 @@ def button_callback(update, context):
     button = Button.objects.get(id=button_id)
     user = Profile.objects.get(user_id=user_id)
     broadcast = BroadcastMessage.objects.get(id=broadcast_id)
-    button_press, _ = ButtonPress.objects.get_or_create(user=user, button=button, broadcast_message=broadcast)
+    button_press, _ = ButtonPress.objects.get_or_create(
+        user=user, button=button, broadcast_message=broadcast
+    )
     button_press.count += 1
     button_press.save()
 
-    query.answer(f"Вы нажали на кнопку '{button.name}' ({button_press.count} раз)")
+    query.answer(f"Вы нажали на кнопку {button.name} {button_press.count} раз")
 
 
 def main():

@@ -49,7 +49,6 @@ class ButtonAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
-        'data',
     )
 
 

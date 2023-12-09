@@ -36,12 +36,6 @@ class Button(models.Model):
         blank=True,
         null=True,
     )
-    data = models.JSONField(
-        verbose_name='JSON-данные кнопки',
-        help_text='JSON-данные кнопки, включая текст и стили',
-        blank=True,
-        null=True,
-    )
     row_number = models.IntegerField(
         verbose_name='номер строки',
         blank=True,
@@ -79,11 +73,6 @@ class BroadcastMessage(models.Model):
         auto_now_add=True,
         verbose_name='дата отправки',
         db_index=True,
-    )
-    button_layout = models.IntegerField(
-        verbose_name='Расположение кнопок',
-        blank=True,
-        null=True,
     )
 
     class Meta:
