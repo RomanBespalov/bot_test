@@ -2,8 +2,10 @@ from django.contrib import admin
 from django.urls import path
 
 from mailing import views
+from webhook import button_callback
 
 urlpatterns = [
+    path('webhook/', button_callback),
     path(
         'admin/broadcast_detail/<int:broadcast_id>/',
         views.broadcast_detail,
